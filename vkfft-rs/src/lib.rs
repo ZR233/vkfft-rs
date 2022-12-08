@@ -1,11 +1,11 @@
 extern crate vkfft_src as vk;
+pub mod config;
+pub mod app;
+pub mod error;
+mod version;
+pub use version::*;
 
 
-pub fn add(left: usize, right: usize) -> usize {
-
-
-    left + right
-}
 
 #[cfg(test)]
 mod tests {
@@ -13,7 +13,10 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+        let version = version();
+
+
+        println!("version: {:?}", version);
+
     }
 }
