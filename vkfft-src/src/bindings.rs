@@ -9069,14 +9069,14 @@ fn bindgen_test_layout_VkFFTApplication() {
     test_field_saveApplicationString();
 }
 extern "C" {
-    #[link_name = "\u{1}?initializeVkFFT@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@UVkFFTConfiguration@@@Z"]
+    // #[link_name = "\u{1}?initializeVkFFT@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@UVkFFTConfiguration@@@Z"]
     pub fn initializeVkFFT(
         app: *mut VkFFTApplication,
         inputLaunchConfiguration: VkFFTConfiguration,
     ) -> VkFFTResult;
 }
 extern "C" {
-    #[link_name = "\u{1}?VkFFTAppend@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@HPEAUVkFFTLaunchParams@@@Z"]
+    // #[link_name = "\u{1}?VkFFTAppend@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@HPEAUVkFFTLaunchParams@@@Z"]
     pub fn VkFFTAppend(
         app: *mut VkFFTApplication,
         inverse: ::std::os::raw::c_int,
@@ -9084,11 +9084,11 @@ extern "C" {
     ) -> VkFFTResult;
 }
 extern "C" {
-    #[link_name = "\u{1}?deleteVkFFT@@YAXPEAUVkFFTApplication@@@Z"]
+    // #[link_name = "\u{1}?deleteVkFFT@@YAXPEAUVkFFTApplication@@@Z"]
     pub fn deleteVkFFT(app: *mut VkFFTApplication);
 }
 extern "C" {
-    #[link_name = "\u{1}?VkFFTPlanAxis@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@PEAUVkFFTPlan@@_K222@Z"]
+    // #[link_name = "\u{1}?VkFFTPlanAxis@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@PEAUVkFFTPlan@@_K222@Z"]
     pub fn VkFFTPlanAxis(
         app: *mut VkFFTApplication,
         FFTPlan: *mut VkFFTPlan,
@@ -9099,10 +9099,10 @@ extern "C" {
     ) -> VkFFTResult;
 }
 extern "C" {
-    #[link_name = "\u{1}?VkFFTSync@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@@Z"]
+    // #[link_name = "\u{1}?VkFFTSync@@YA?AW4VkFFTResult@@PEAUVkFFTApplication@@@Z"]
     pub fn VkFFTSync(app: *mut VkFFTApplication) -> VkFFTResult;
 }
 extern "C" {
-    #[link_name = "\u{1}?VkFFTGetVersion@@YAHXZ"]
+    // #[link_name = "\u{1}?VkFFTGetVersion@@YAHXZ"]
     pub fn VkFFTGetVersion() -> ::std::os::raw::c_int;
 }

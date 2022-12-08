@@ -5,6 +5,13 @@
 #ifndef VKFFT_WRAPPER_H
 #define VKFFT_WRAPPER_H
 
-void test();
+
+
+
+extern "C"{
+#include "vkfft_rw.hpp"
+}
+
+
 
 #endif //VKFFT_WRAPPER_H

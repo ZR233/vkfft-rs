@@ -106,8 +106,9 @@ fn main() -> Result<(), Box<dyn Error>> {
         ("VK_API_VERSION", "11")
     ];
 
+    // let wrapper_h = build_args.manifest_dir.join("wrapper").join("wrapper.h");
 
-    // let bindings = gen_wrapper(&rw, &defines, &include_dirs)?;
+    // let bindings = gen_wrapper(&build_args, &wrapper_h, &defines, &include_dirs)?;
     // bindings.write_to_file(build_args.out_dir.join("bindings.rs"))?;
 
     Ok(())
@@ -174,12 +175,13 @@ fn run(mut cmd: Command){
     }
 }
 
-fn gen_wrapper<F, const N: usize, const M: usize>(file: F,  defines: &[(&str, &str); N], include_dirs: &[String; M]) -> Result<Bindings, Box<dyn Error>>
+fn gen_wrapper<F, const N: usize, const M: usize>(build_args: &BuildArgs, file: F,  defines: &[(&str, &str); N], include_dirs: &[String; M]) -> Result<Bindings, Box<dyn Error>>
     where
         F: AsRef<Path>,
 {
     let base_args = [
-        "-std=c++11".to_string(),
+        // "-std=c++11".to_string(),
+        // "-std=c11".to_string(),
     ];
 
     let defines: Vec<String> = defines.iter().map(|(k, v)| {
@@ -195,10 +197,23 @@ fn gen_wrapper<F, const N: usize, const M: usize>(file: F,  defines: &[(&str, &s
         .chain(defines.iter())
         .chain(include_dirs.iter());
 
-    println!("{:?}", clang_args);
+
+    let mut cfg = bindgen::Builder::default();
+
+    if build_args.target_os == "android" {
+        let mut sys_path = PathBuf::from(env::var("ANDROID_NDK_HOME").unwrap());
+        sys_path = sys_path.join("toolchains/llvm/prebuilt");
+        //TODO 只有win
+        sys_path = sys_path.join("windows-x86_64");
+
+        sys_path = sys_path.join("sysroot");
+
+        cfg = cfg.clang_arg("--sysroot").clang_arg(sys_path.display().to_string());
+    }
 
 
-    let res = bindgen::Builder::default()
+
+    let cfg = cfg
         .clang_args(clang_args)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .header(file.as_ref().to_str().unwrap())
@@ -216,8 +231,11 @@ fn gen_wrapper<F, const N: usize, const M: usize>(file: F,  defines: &[(&str, &s
         .allowlist_function("VkFFTPlanAxis")
         .allowlist_function("initializeVkFFT")
         .allowlist_function("deleteVkFFT")
-        .allowlist_function("VkFFTGetVersion")
-        .generate();
+        .allowlist_function("VkFFTGetVersion");
+
+    println!("{:?}", cfg);
+
+    let res = cfg.generate();
 
     let bindings = match res {
         Ok(x) => x,
