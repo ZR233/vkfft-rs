@@ -1,4 +1,4 @@
 [workspace]
 members = [
-    "vkfft-src",
+    "vkfft-src", "vkfft-rs"
 ]
