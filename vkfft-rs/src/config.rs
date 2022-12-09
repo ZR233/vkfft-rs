@@ -6,11 +6,11 @@ use vulkano::{
     buffer::BufferAccess,
     command_buffer::pool::UnsafeCommandPool,
     device::{Device, Queue},
-    instance::PhysicalDevice,
+    device::physical::PhysicalDevice,
     sync::Fence,
-    SynchronizedVulkanObject, VulkanHandle, VulkanObject,
+    SynchronizedVulkanObject, VulkanObject,
 };
-
+use ash::vk::Handle;
 use std::ptr::addr_of_mut;
 
 #[derive(Display, Debug, Error)]
@@ -27,7 +27,7 @@ pub struct ConfigBuilder<'a> {
     fft_dim: u64,
     size: [u64; 3usize],
 
-    physical_device: Option<PhysicalDevice<'a>>,
+    physical_device: Option<Arc<PhysicalDevice>>,
     device: Option<Arc<Device>>,
     queue: Option<Arc<Queue>>,
     fence: Option<&'a Fence>,
@@ -104,7 +104,7 @@ impl<'a> ConfigBuilder<'a> {
         self
     }
 
-    pub fn physical_device(mut self, physical_device: PhysicalDevice<'a>) -> Self {
+    pub fn physical_device(mut self, physical_device: Arc<PhysicalDevice>) -> Self {
         self.physical_device = Some(physical_device);
         self
     }
@@ -365,7 +365,7 @@ impl From<usize> for BufferDesc {
 impl BufferDesc {
     pub fn size(&self) -> usize {
         match self {
-            Self::Buffer(b) => b.size(),
+            Self::Buffer(b) => b.size() as usize,
             Self::BufferSize(b) => *b,
         }
     }
@@ -389,7 +389,7 @@ pub struct Config<'a> {
     pub fft_dim: u64,
     pub size: [u64; 3usize],
 
-    pub physical_device: PhysicalDevice<'a>,
+    pub physical_device: Arc<PhysicalDevice>,
     pub device: Arc<Device>,
     pub queue: Arc<Queue>,
     pub fence: &'a Fence,
@@ -472,6 +472,9 @@ pub(crate) struct ConfigGuard {
     pub(crate) keep_alive: KeepAlive,
     pub(crate) config: vkfft_src::VkFFTConfiguration,
     pub(crate) physical_device: vk_sys::PhysicalDevice,
+    // pub(crate) physical_device: ash::vk::PhysicalDevice,
+
+
     pub(crate) device: vk_sys::Device,
     pub(crate) queue: vk_sys::Queue,
     pub(crate) command_pool: vk_sys::CommandPool,
@@ -560,14 +563,19 @@ impl<'a> Config<'a> {
                 temp_buffer: self.temp_buffer.as_ref().map(|b| b.as_buffer().cloned()).flatten()
             };
 
+            let queue = {
+                let g = self.queue.internal_object_guard();
+                (*g).as_raw() as usize
+            } ;
+
             let mut res = Box::pin(ConfigGuard {
                 keep_alive,
                 config: zeroed(),
-                physical_device: self.physical_device.internal_object(),
-                device: self.device.internal_object().value() as usize,
-                queue: self.queue.internal_object_guard().value() as usize,
-                command_pool: self.command_pool.internal_object().value(),
-                fence: self.fence.internal_object().value(),
+                physical_device: self.physical_device.internal_object().as_raw() as usize,
+                device: self.device.internal_object().as_raw() as usize,
+                queue,
+                command_pool: self.command_pool.internal_object().as_raw() as u64,
+                fence: self.fence.internal_object().as_raw() as u64,
                 buffer_size: self.buffer.as_ref().map(|b| b.size()).unwrap_or(0) as u64,
                 temp_buffer_size: self.temp_buffer.as_ref().map(|b| b.size()).unwrap_or(0) as u64,
                 input_buffer_size: self.input_buffer.as_ref().map(|b| b.size()).unwrap_or(0) as u64,
@@ -578,31 +586,31 @@ impl<'a> Config<'a> {
                     .as_ref()
                     .map(|b| b.as_buffer())
                     .flatten()
-                    .map(|b| b.inner().buffer.internal_object().value()),
+                    .map(|b| b.inner().buffer.internal_object().as_raw()),
                 temp_buffer: self
                     .temp_buffer
                     .as_ref()
                     .map(|b| b.as_buffer())
                     .flatten()
-                    .map(|b| b.inner().buffer.internal_object().value()),
+                    .map(|b| b.inner().buffer.internal_object().as_raw()),
                 input_buffer: self
                     .input_buffer
                     .as_ref()
                     .map(|b| b.as_buffer())
                     .flatten()
-                    .map(|b| b.inner().buffer.internal_object().value()),
+                    .map(|b| b.inner().buffer.internal_object().as_raw()),
                 output_buffer: self
                     .output_buffer
                     .as_ref()
                     .map(|b| b.as_buffer())
                     .flatten()
-                    .map(|b| b.inner().buffer.internal_object().value()),
+                    .map(|b| b.inner().buffer.internal_object().as_raw()),
                 kernel: self
                     .kernel
                     .as_ref()
                     .map(|b| b.as_buffer())
                     .flatten()
-                    .map(|b| b.inner().buffer.internal_object().value()),
+                    .map(|b| b.inner().buffer.internal_object().as_raw()),
             });
 
             res.config.FFTdim = self.fft_dim;

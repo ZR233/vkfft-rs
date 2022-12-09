@@ -1,14 +1,16 @@
 [package]
 name = "vkfft-rs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-vulkano = "^0.22"
+vulkano = "0.31"
 derive_more = "0.99"
 vk-sys = "0.7.0"
+ash = "0.37"
+
 [dependencies.vkfft-src]
 path = "../vkfft-src"
 version = "0.1.1"

@@ -15,7 +15,6 @@ mod tests {
     fn it_works() {
         let version = version();
 
-
         println!("version: {:?}", version);
 
     }

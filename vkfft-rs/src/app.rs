@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use error::check_error;
-use vulkano::{buffer::BufferAccess, VulkanHandle, VulkanObject};
-
+use vulkano::{buffer::BufferAccess, VulkanObject};
+use ash::vk::Handle;
 use crate::{
     config::{Config, ConfigGuard},
     error,
@@ -130,7 +130,7 @@ impl LaunchParams {
         where
             B: AsRef<dyn BufferAccess>,
     {
-        buffer.as_ref().inner().buffer.internal_object().value()
+        buffer.as_ref().inner().buffer.internal_object().as_raw()
     }
 
     pub(crate) fn as_sys(&self) -> Pin<Box<LaunchParamsGuard>> {
